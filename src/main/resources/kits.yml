@@ -1,0 +1,37 @@
+# Наборы дуэлей. Броня: класс (LIGHT/HEAVY/SOUL) и тир, все четыре вещи одинаковые.
+# Заточка: attack-level 0..7, protection-level 0..5 (на каждую вещь брони), piercing-level 0..3.
+# Трезубец (ТЗ 4.3): ближний бой разрешён в любой броне, бросок запрещён только в полном HEAVY. Поэтому он есть в LIGHT и SOUL наборах (бросок + ближний бой) и не выдаётся в HEAVY (там бросить нельзя).
+# Невозможные наборы (например лук + HEAVY, меч T5 без полного SOUL T5) отклоняются при запуске.
+# В MVP выдаются только тиры 3-5.
+# Порядок наборов здесь = порядок кнопок в меню: T3, все T4 подряд, затем T5.
+# Версия файла. Если она выше, чем у файла на сервере, плагин сохранит старый файл как kits.yml.bak и заменит его новым.
+version: 6
+kits:
+  t3_heavy:
+    display-name: "T3 тяжёлый"
+    armor: {class: HEAVY, tier: 3}
+    weapons: [sword_t3_carbide, axe_t3_carbide]
+  t4_heavy:
+    display-name: "T4 тяжёлый"
+    armor: {class: HEAVY, tier: 4}
+    weapons: [sword_t4_tungsten, axe_t4_tungsten]
+  # Набор с максимальной заточкой: атака +7, защита +5 (пронзание убрано по решению владельца)
+  t4_heavy_max:
+    display-name: "T4 тяжёлый (заточка)"
+    armor: {class: HEAVY, tier: 4, protection-level: 5}
+    weapons: [sword_t4_tungsten, axe_t4_tungsten]
+    attack-level: 7
+  # Кожа (LIGHT) + лук: лук разрешён, пока нет HEAVY-вещей. Трезубец даёт ближний бой и бросок.
+  t4_light_bow:
+    display-name: "T4 кожа + лук"
+    armor: {class: LIGHT, tier: 4}
+    weapons: [bow_t4_marksman, trident_t4_tungsten]
+  t4_light_bow_max:
+    display-name: "T4 кожа + лук (заточка)"
+    armor: {class: LIGHT, tier: 4, protection-level: 5}
+    weapons: [bow_t4_marksman, trident_t4_tungsten]
+    attack-level: 7
+  t5_soul:
+    display-name: "T5 душ"
+    armor: {class: SOUL, tier: 5}
+    weapons: [sword_t5_soul, bow_t4_marksman, crossbow_t5_soul, trident_t4_tungsten]

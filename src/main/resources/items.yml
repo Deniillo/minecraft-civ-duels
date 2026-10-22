@@ -1,0 +1,50 @@
+# Профили предметов (ТЗ, разделы 4-5). Числа указаны в HP: 2 HP = одно сердечко.
+# Скорость брони: прибавка к базе движения, 0.01 = +1%.
+# ID брони строится как <класс>_t<тир>_<слот>, например heavy_t4_helmet.
+# ВАЖНО: тест ItemCatalogTest сверяет этот файл с таблицами ТЗ.
+
+armor:
+  light:
+    t1: {material: LEATHER, defense: 2.0, hp: 0.0, speed: 0.01}
+    t2: {material: LEATHER, defense: 3.0, hp: 0.5, speed: 0.02}
+    t3: {material: LEATHER, defense: 4.0, hp: 1.0, speed: 0.035}
+    t4: {material: LEATHER, defense: 5.0, hp: 1.5, speed: 0.045}
+    t5: {material: LEATHER, defense: 7.5, hp: 0.0, speed: 0.075}
+  heavy:
+    t1: {material: IRON, defense: 2.75, hp: 1.0, speed: -0.01}
+    t2: {material: CHAINMAIL, defense: 3.75, hp: 2.0, speed: -0.02}
+    t3: {material: GOLDEN, defense: 4.75, hp: 2.5, speed: -0.025}
+    t4: {material: DIAMOND, defense: 5.75, hp: 3.0, speed: -0.035}
+  soul:
+    t1: {material: IRON, defense: 2.75, hp: 1.5, speed: 0.01}
+    t2: {material: CHAINMAIL, defense: 3.75, hp: 2.5, speed: 0.02}
+    t3: {material: GOLDEN, defense: 4.75, hp: 3.0, speed: 0.035}
+    t4: {material: DIAMOND, defense: 5.75, hp: 4.0, speed: 0.045}
+    t5: {material: NETHERITE, defense: 5.75, hp: 4.5, speed: 0.035, boots-speed: 0.045}
+
+weapons:
+  # Мечи
+  sword_t1_wood:      {kind: SWORD, tier: 1, material: WOODEN_SWORD, attack: 7}
+  sword_t1_stone:     {kind: SWORD, tier: 1, material: STONE_SWORD, attack: 12}
+  sword_t1_iron:      {kind: SWORD, tier: 1, material: IRON_SWORD, attack: 14}
+  sword_t2_steel:     {kind: SWORD, tier: 2, material: IRON_SWORD, attack: 18}
+  sword_t3_carbide:   {kind: SWORD, tier: 3, material: GOLDEN_SWORD, attack: 22}
+  sword_t4_tungsten:  {kind: SWORD, tier: 4, material: DIAMOND_SWORD, attack: 27}
+  sword_t5_soul:      {kind: SWORD, tier: 5, material: NETHERITE_SWORD, attack: 35}
+  # Боевые секиры
+  axe_t1_stone:       {kind: AXE, tier: 1, material: STONE_AXE, attack: 15}
+  axe_t1_iron:        {kind: AXE, tier: 1, material: IRON_AXE, attack: 17}
+  axe_t2_steel:       {kind: AXE, tier: 2, material: IRON_AXE, attack: 21}
+  axe_t3_carbide:     {kind: AXE, tier: 3, material: GOLDEN_AXE, attack: 25}
+  axe_t4_tungsten:    {kind: AXE, tier: 4, material: DIAMOND_AXE, attack: 30}
+  # Трезубцы (attack: ближняя база; бросок = база + 5 + E/2 + E, см. формулы)
+  trident_t1_iron:     {kind: TRIDENT, tier: 1, material: TRIDENT, attack: 15}
+  trident_t2_steel:    {kind: TRIDENT, tier: 2, material: TRIDENT, attack: 19}
+  trident_t3_carbide:  {kind: TRIDENT, tier: 3, material: TRIDENT, attack: 23}
+  trident_t4_tungsten: {kind: TRIDENT, tier: 4, material: TRIDENT, attack: 28}
+  # Луки и арбалет
+  bow_t1_hunting:     {kind: BOW, tier: 1, material: BOW, attack: 17}
+  bow_t2_recurve:     {kind: BOW, tier: 2, material: BOW, attack: 21}
+  bow_t3_long:        {kind: BOW, tier: 3, material: BOW, attack: 25}
+  bow_t4_marksman:    {kind: BOW, tier: 4, material: BOW, attack: 30}
+  crossbow_t5_soul:   {kind: CROSSBOW, tier: 5, material: CROSSBOW, attack: 38}
