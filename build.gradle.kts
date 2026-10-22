@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "mine.deniilo"
-version = "0.1.0"
+version = "0.2.0"
 
 val paperApi = "io.papermc.paper:paper-api:26.3.build.211-stable"
 
