@@ -25,7 +25,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    // тот же драйвер, что встроен в Paper (docker/data/libraries/org/xerial/sqlite-jdbc)
+    // тот же драйвер, что встроен в Paper
     testImplementation("org.xerial:sqlite-jdbc:3.46.0.0")
     // моки Bukkit-сущностей для тестов движка боя без сервера
     testImplementation("org.mockito:mockito-core:5.24.0")
@@ -50,11 +50,3 @@ tasks.test {
     jvmArgs("-XX:+EnableDynamicAgentLoading", "--enable-native-access=ALL-UNNAMED")
 }
 
-// ./gradlew deploy  — собирает JAR и кладёт его в plugins/ тестового сервера в Docker
-tasks.register<Copy>("deploy") {
-    group = "duels"
-    description = "Собрать плагин и скопировать в docker/data/plugins"
-    dependsOn(tasks.jar)
-    from(tasks.jar.flatMap { it.archiveFile })
-    into(layout.projectDirectory.dir("docker/data/plugins"))
-}
