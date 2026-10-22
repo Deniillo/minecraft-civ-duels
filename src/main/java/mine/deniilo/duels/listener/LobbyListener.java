@@ -1,7 +1,6 @@
 package mine.deniilo.duels.listener;
 
-import mine.deniilo.duels.config.DuelsSettings;
-import mine.deniilo.duels.hub.HubAdapter;
+import mine.deniilo.duels.hub.DuelsGateway;
 import mine.deniilo.duels.world.SpawnStore;
 import mine.deniilo.duels.world.WorldService;
 import org.bukkit.GameMode;
@@ -11,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -18,24 +18,33 @@ public final class LobbyListener implements Listener {
 
     private static final double VOID_Y = 0;
 
-    private final DuelsSettings settings;
     private final WorldService worlds;
     private final SpawnStore spawns;
-    private final HubAdapter hub;
+    private final DuelsGateway gateway;
+    private final boolean joinToLobby;
 
-    public LobbyListener(DuelsSettings settings, WorldService worlds, SpawnStore spawns, HubAdapter hub) {
-        this.settings = settings;
+    public LobbyListener(WorldService worlds, SpawnStore spawns, DuelsGateway gateway, boolean joinToLobby) {
         this.worlds = worlds;
         this.spawns = spawns;
-        this.hub = hub;
+        this.gateway = gateway;
+        this.joinToLobby = joinToLobby;
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (settings.joinTeleportToHub()) {
-            hub.sendToHub(player);
+        if (joinToLobby && !gateway.isInMatch(player)) {
+            gateway.join(player);
         }
+        adventureInLobby(player);
+    }
+
+    @EventHandler
+    public void onWorldChange(PlayerChangedWorldEvent event) {
+        adventureInLobby(event.getPlayer());
+    }
+
+    private void adventureInLobby(Player player) {
         if (worlds.isLobbyWorld(player.getWorld()) && !player.hasPermission("duels.admin")) {
             player.setGameMode(GameMode.ADVENTURE);
         }
@@ -61,11 +70,9 @@ public final class LobbyListener implements Listener {
         if (to.getY() >= VOID_Y || !worlds.isLobbyWorld(to.getWorld())) {
             return;
         }
-        Player player = event.getPlayer();
-        String key = to.getWorld().getName().equals(settings.hub().name()) ? SpawnStore.HUB : SpawnStore.LOBBY;
-        Location spawn = spawns.resolve(key);
+        Location spawn = spawns.resolve(SpawnStore.LOBBY);
         if (spawn != null) {
-            player.teleport(spawn);
+            event.getPlayer().teleport(spawn);
         }
     }
 }

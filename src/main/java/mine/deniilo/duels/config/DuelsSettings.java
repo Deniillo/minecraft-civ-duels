@@ -6,8 +6,6 @@ import java.util.regex.Pattern;
 import org.bukkit.configuration.ConfigurationSection;
 
 public record DuelsSettings(
-        boolean joinTeleportToHub,
-        WorldSettings hub,
         WorldSettings lobby,
         WorldSettings arena) {
 
@@ -24,18 +22,17 @@ public record DuelsSettings(
         if (worlds == null) {
             throw new IllegalArgumentException("В config.yml нет раздела worlds");
         }
-        WorldSettings hub = readWorld(worlds, "hub");
         WorldSettings lobby = readWorld(worlds, "lobby");
         WorldSettings arena = readWorld(worlds, "arena");
 
         Set<String> names = new HashSet<>();
-        for (WorldSettings w : new WorldSettings[] {hub, lobby, arena}) {
+        for (WorldSettings w : new WorldSettings[] {lobby, arena}) {
             if (!names.add(w.name())) {
                 throw new IllegalArgumentException(
                         "Имена миров не должны повторяться, повторяется: " + w.name());
             }
         }
-        return new DuelsSettings(root.getBoolean("join-teleport-to-hub", true), hub, lobby, arena);
+        return new DuelsSettings(lobby, arena);
     }
 
     private static WorldSettings readWorld(ConfigurationSection worlds, String key) {

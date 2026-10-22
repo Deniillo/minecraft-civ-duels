@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import mine.deniilo.duels.combat.CombatAdminCommands;
-import mine.deniilo.duels.hub.HubAdapter;
+import mine.deniilo.duels.hub.DuelsGateway;
 import mine.deniilo.duels.kit.KitAdminCommands;
 import mine.deniilo.duels.match.MatchAdminCommands;
 import mine.deniilo.duels.menu.DuelMenu;
@@ -30,7 +30,7 @@ public final class DuelCommand implements TabExecutor {
 
     private final Messages messages;
     private final SpawnStore spawns;
-    private final HubAdapter hub;
+    private final DuelsGateway gateway;
     private final KitAdminCommands kitCommands;
     private final CombatAdminCommands combatCommands;
     private final MatchAdminCommands matchCommands;
@@ -43,7 +43,7 @@ public final class DuelCommand implements TabExecutor {
     private final KitCatalog kits;
     private final mine.deniilo.duels.board.LeaderboardService board;
 
-    public DuelCommand(Messages messages, SpawnStore spawns, HubAdapter hub, KitAdminCommands kitCommands,
+    public DuelCommand(Messages messages, SpawnStore spawns, DuelsGateway gateway, KitAdminCommands kitCommands,
                        CombatAdminCommands combatCommands, java.util.Set<String> weaponIds,
                        MatchAdminCommands matchCommands, MatchManager matches, DuelMenu menu,
                        QueueCoordinator queue, StatsCommands stats, NpcService npcs, KitCatalog kits,
@@ -61,7 +61,7 @@ public final class DuelCommand implements TabExecutor {
         this.weaponIds = weaponIds;
         this.messages = messages;
         this.spawns = spawns;
-        this.hub = hub;
+        this.gateway = gateway;
     }
 
     @Override
@@ -78,8 +78,8 @@ public final class DuelCommand implements TabExecutor {
             case "queue" -> queueCommand(sender, args);
             case "stats" -> stats.stats(sender, args);
             case "top" -> stats.top(sender, args);
-            case "lobby" -> toLobby(sender);
-            case "hub" -> toHub(sender);
+            case "join", "lobby" -> join(sender, args);
+            case "exit", "hub" -> exit(sender);
             case "leave" -> leave(sender);
             case "admin" -> admin(sender, args);
             default -> messages.send(sender, "unknown-subcommand");
@@ -87,18 +87,23 @@ public final class DuelCommand implements TabExecutor {
         return true;
     }
 
-    private void toLobby(CommandSender sender) {
-        if (!(sender instanceof Player player)) {
-            messages.send(sender, "players-only");
-            return;
+    private void join(CommandSender sender, String[] args) {
+        if (args.length >= 2) {
+            if (!sender.hasPermission(ADMIN_PERMISSION)) {
+                messages.send(sender, "no-permission");
+                return;
+            }
+            Player target = Bukkit.getPlayerExact(args[1]);
+            if (target == null) {
+                messages.send(sender, "player-offline", "player", args[1]);
+            } else {
+                gateway.join(target);
+            }
+        } else if (sender instanceof Player player) {
+            gateway.join(player);
+        } else {
+            messages.send(sender, "join-usage");
         }
-        Location lobby = spawns.resolve(SpawnStore.LOBBY);
-        if (lobby == null) {
-            messages.send(sender, "world-missing", "world", "lobby");
-            return;
-        }
-        player.teleport(lobby);
-        messages.send(sender, "to-lobby");
     }
 
     private void leave(CommandSender sender) {
@@ -143,15 +148,11 @@ public final class DuelCommand implements TabExecutor {
         }
     }
 
-    private void toHub(CommandSender sender) {
-        if (!(sender instanceof Player player)) {
-            messages.send(sender, "players-only");
-            return;
-        }
-        if (hub.sendToHub(player)) {
-            messages.send(sender, "to-hub");
+    private void exit(CommandSender sender) {
+        if (sender instanceof Player player) {
+            gateway.exit(player);
         } else {
-            messages.send(sender, "world-missing", "world", "hub");
+            messages.send(sender, "players-only");
         }
     }
 
@@ -186,10 +187,7 @@ public final class DuelCommand implements TabExecutor {
                 return;
             }
             String action = args.length >= 3 ? args[2].toLowerCase(Locale.ROOT) : "";
-            Location hub = spawns.resolve(SpawnStore.HUB);
-            if (action.equals("create") && hub != null && p.getWorld().equals(hub.getWorld())) {
-                messages.send(sender, "board-not-in-hub");
-            } else if (action.equals("create")) {
+            if (action.equals("create")) {
                 board.spawn(p.getLocation().add(0, 1.5, 0));
                 board.refresh();
                 messages.send(sender, "board-created");
@@ -267,8 +265,8 @@ public final class DuelCommand implements TabExecutor {
             out.add("queue");
             out.add("stats");
             out.add("top");
-            out.add("lobby");
-            out.add("hub");
+            out.add("join");
+            out.add("exit");
             out.add("leave");
             if (sender.hasPermission(ADMIN_PERMISSION)) {
                 out.add("admin");
@@ -276,6 +274,10 @@ public final class DuelCommand implements TabExecutor {
         } else if (args[0].equalsIgnoreCase("queue")) {
             if (args.length == 2) {
                 out.addAll(kits.ids());
+            }
+        } else if (args[0].equalsIgnoreCase("join")) {
+            if (args.length == 2 && sender.hasPermission(ADMIN_PERMISSION)) {
+                Bukkit.getOnlinePlayers().forEach(p -> out.add(p.getName()));
             }
         } else if (sender.hasPermission(ADMIN_PERMISSION) && args[0].equalsIgnoreCase("admin")
                 && args.length >= 3 && (args[1].equalsIgnoreCase("npc") || args[1].equalsIgnoreCase("board"))) {

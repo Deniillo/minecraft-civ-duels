@@ -2,13 +2,13 @@ name: Duels
 version: '${version}'
 main: mine.deniilo.duels.DuelsPlugin
 api-version: '26.3'
-description: Автономный сервер дуэлей 1v1 с боевым балансом CivCraft
+description: Дуэли 1v1 с боевым балансом CivCraft
 authors: [deniilo]
 
 commands:
   duel:
     description: Команды дуэлей
-    usage: /<command> [queue|stats|top|leave|lobby|hub|admin]
+    usage: /<command> [join|exit|queue|stats|top|leave|admin]
     aliases: [duels]
 
 permissions:

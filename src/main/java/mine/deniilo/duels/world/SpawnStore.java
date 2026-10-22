@@ -15,11 +15,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class SpawnStore {
 
-    public static final String HUB = "hub";
     public static final String LOBBY = "lobby";
     public static final String ARENA_A = "arena-a";
     public static final String ARENA_B = "arena-b";
-    public static final List<String> KEYS = List.of(HUB, LOBBY, ARENA_A, ARENA_B);
+    public static final List<String> KEYS = List.of(LOBBY, ARENA_A, ARENA_B);
 
     private final JavaPlugin plugin;
     private final DuelsSettings settings;
@@ -87,7 +86,6 @@ public final class SpawnStore {
 
     private String defaultWorldName(String key) {
         return switch (key) {
-            case HUB -> settings.hub().name();
             case LOBBY -> settings.lobby().name();
             default -> settings.arena().name();
         };

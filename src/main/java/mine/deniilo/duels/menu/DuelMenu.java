@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import mine.deniilo.duels.hub.HubAdapter;
+import mine.deniilo.duels.hub.DuelsGateway;
 import mine.deniilo.duels.match.MatchManager;
 import mine.deniilo.duels.message.Messages;
 import mine.deniilo.duels.profile.Kit;
@@ -15,12 +15,10 @@ import mine.deniilo.duels.rating.RatingRepository;
 import mine.deniilo.duels.rating.StatsCommands;
 import mine.deniilo.duels.training.TrainingCoordinator;
 import mine.deniilo.duels.training.TrainingRooms;
-import mine.deniilo.duels.world.SpawnStore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -103,13 +101,12 @@ public final class DuelMenu implements Listener {
     private final QueueCoordinator queue;
     private final TrainingCoordinator training;
     private final MatchManager matches;
-    private final SpawnStore spawns;
-    private final HubAdapter hub;
+    private final DuelsGateway gateway;
     private final RatingRepository ratings;
     private final StatsCommands stats;
 
     public DuelMenu(Plugin plugin, Messages messages, KitCatalog kits, QueueCoordinator queue,
-                    TrainingCoordinator training, MatchManager matches, SpawnStore spawns, HubAdapter hub,
+                    TrainingCoordinator training, MatchManager matches, DuelsGateway gateway,
                     RatingRepository ratings, StatsCommands stats) {
         this.plugin = plugin;
         this.messages = messages;
@@ -117,8 +114,7 @@ public final class DuelMenu implements Listener {
         this.queue = queue;
         this.training = training;
         this.matches = matches;
-        this.spawns = spawns;
-        this.hub = hub;
+        this.gateway = gateway;
         this.ratings = ratings;
         this.stats = stats;
     }
@@ -318,21 +314,11 @@ public final class DuelMenu implements Listener {
             case TRAINING_SLOT -> openTraining(player);
             case LOBBY_SLOT -> {
                 player.closeInventory();
-                Location lobby = spawns.resolve(SpawnStore.LOBBY);
-                if (lobby == null) {
-                    messages.send(player, "world-missing", "world", "lobby");
-                } else {
-                    player.teleport(lobby);
-                    messages.send(player, "to-lobby");
-                }
+                gateway.join(player);
             }
             case HUB_SLOT -> {
                 player.closeInventory();
-                if (hub.sendToHub(player)) {
-                    messages.send(player, "to-hub");
-                } else {
-                    messages.send(player, "world-missing", "world", "hub");
-                }
+                gateway.exit(player);
             }
             case LEAVE_SLOT -> {
                 player.closeInventory();

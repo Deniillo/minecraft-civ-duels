@@ -18,7 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
-public final class LeaderboardService implements org.bukkit.event.Listener {
+public final class LeaderboardService {
 
     private final Plugin plugin;
     private final Messages messages;
@@ -142,27 +142,11 @@ public final class LeaderboardService implements org.bukkit.event.Listener {
             for (TextDisplay d : boards(world)) {
                 Location l = d.getLocation();
                 String spot = world.getName() + ":" + l.getBlockX() + ":" + l.getBlockY() + ":" + l.getBlockZ();
-                if (inHub(d)) {
-                    d.remove();
-                } else if (!seen.add(spot)) {
+                if (!seen.add(spot)) {
                     d.remove();
                 } else {
                     d.text(text);
                 }
-            }
-        }
-    }
-
-    private boolean inHub(org.bukkit.entity.Entity e) {
-        Location hub = spawns.resolve(SpawnStore.HUB);
-        return hub != null && e.getWorld().equals(hub.getWorld());
-    }
-
-    @org.bukkit.event.EventHandler
-    public void onEntitiesLoad(org.bukkit.event.world.EntitiesLoadEvent event) {
-        for (org.bukkit.entity.Entity e : event.getEntities()) {
-            if (isBoard(e) && inHub(e)) {
-                e.remove();
             }
         }
     }

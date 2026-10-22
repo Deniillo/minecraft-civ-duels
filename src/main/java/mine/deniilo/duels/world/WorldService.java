@@ -31,18 +31,12 @@ public final class WorldService {
     }
 
     public void loadAll() {
-        load(settings.hub(), true);
         load(settings.lobby(), true);
         load(settings.arena(), false);
     }
 
     public boolean isLobbyWorld(World world) {
-        String n = world.getName();
-        return n.equals(settings.hub().name()) || n.equals(settings.lobby().name());
-    }
-
-    public boolean isHubWorld(World world) {
-        return world.getName().equals(settings.hub().name());
+        return world.getName().equals(settings.lobby().name());
     }
 
     public boolean isDuelsWorld(World world) {

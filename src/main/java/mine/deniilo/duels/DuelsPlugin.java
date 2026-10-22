@@ -36,8 +36,12 @@ import mine.deniilo.duels.profile.KitCatalog;
 import org.bukkit.configuration.file.YamlConfiguration;
 import mine.deniilo.duels.command.DuelCommand;
 import mine.deniilo.duels.config.DuelsSettings;
+import mine.deniilo.duels.api.DuelsApi;
+import mine.deniilo.duels.hub.DuelsGateway;
 import mine.deniilo.duels.hub.HubAdapter;
+import mine.deniilo.duels.hub.HubSettings;
 import mine.deniilo.duels.hub.LocalHubAdapter;
+import mine.deniilo.duels.hub.ProxyHubAdapter;
 import mine.deniilo.duels.listener.LobbyListener;
 import mine.deniilo.duels.message.Messages;
 import mine.deniilo.duels.world.SpawnStore;
@@ -55,8 +59,10 @@ public final class DuelsPlugin extends JavaPlugin {
         saveDefaultConfig();
 
         DuelsSettings settings;
+        HubSettings hubSettings;
         try {
             settings = DuelsSettings.from(getConfig());
+            hubSettings = HubSettings.from(getConfig());
         } catch (IllegalArgumentException e) {
             getLogger().severe("Ошибка в config.yml: " + e.getMessage());
             getServer().getPluginManager().disablePlugin(this);
@@ -69,7 +75,9 @@ public final class DuelsPlugin extends JavaPlugin {
         worlds.loadAll();
 
         SpawnStore spawns = new SpawnStore(this, settings);
-        HubAdapter hub = new LocalHubAdapter(spawns);
+        HubAdapter hub = hubSettings.mode() == HubSettings.Mode.PROXY
+                ? new ProxyHubAdapter(this, hubSettings.server())
+                : new LocalHubAdapter(hubSettings);
 
         ItemCatalog items;
         try (Reader reader = new InputStreamReader(
@@ -193,7 +201,10 @@ public final class DuelsPlugin extends JavaPlugin {
         sidebar.start();
         getServer().getPluginManager().registerEvents(new QueueListener(queue, training, sidebar), this);
         StatsCommands statsCommands = new StatsCommands(messages, ratings);
-        DuelMenu menu = new DuelMenu(this, messages, kits, queue, training, matchManager, spawns, hub, ratings,
+        DuelsGateway gateway = new DuelsGateway(messages, spawns, worlds, hub, matchManager, queue, training);
+        getServer().getServicesManager().register(DuelsApi.class, gateway, this,
+                org.bukkit.plugin.ServicePriority.Normal);
+        DuelMenu menu = new DuelMenu(this, messages, kits, queue, training, matchManager, gateway, ratings,
                 statsCommands);
         menu.startRefresh();
         getServer().getPluginManager().registerEvents(menu, this);
@@ -203,27 +214,26 @@ public final class DuelsPlugin extends JavaPlugin {
                 this, messages, ratings, spawns, getConfig().getInt("leaderboard.size", 10),
                 Math.max(5, getConfig().getInt("leaderboard.update-seconds", 30)));
         board.start(getConfig().getBoolean("leaderboard.auto-create", true));
-        getServer().getPluginManager().registerEvents(board, this);
         NpcService npcs = new NpcService(this, messages);
         getServer().getPluginManager().registerEvents(new NpcListener(npcs, menu), this);
         if (getConfig().getBoolean("npc.auto-create", true)) {
-            for (String key : new String[] {SpawnStore.HUB, SpawnStore.LOBBY}) {
-                org.bukkit.Location point = spawns.resolve(key);
-                if (point != null) {
-                    npcs.ensureLater(point);
-                }
+            org.bukkit.Location point = spawns.resolve(SpawnStore.LOBBY);
+            if (point != null) {
+                npcs.ensureLater(point);
             }
         }
 
         PluginCommand command = Objects.requireNonNull(getCommand("duel"), "команда duel не описана в plugin.yml");
-        DuelCommand executor = new DuelCommand(messages, spawns, hub, kitCommands, combatCommands, weaponIds,
+        DuelCommand executor = new DuelCommand(messages, spawns, gateway, kitCommands, combatCommands, weaponIds,
                 matchCommands, matchManager, menu, queue, statsCommands, npcs, kits, board);
         command.setExecutor(executor);
         command.setTabCompleter(executor);
 
-        getServer().getPluginManager().registerEvents(new LobbyListener(settings, worlds, spawns, hub), this);
+        getServer().getPluginManager().registerEvents(new LobbyListener(worlds, spawns, gateway,
+                hubSettings.mode() == HubSettings.Mode.PROXY), this);
 
-        getLogger().info("Duels enabled");
+        getLogger().info("Duels enabled, хаб: " + (hubSettings.mode() == HubSettings.Mode.PROXY
+                ? "сервер " + hubSettings.server() + " через прокси" : "этот сервер"));
     }
 
     @Override

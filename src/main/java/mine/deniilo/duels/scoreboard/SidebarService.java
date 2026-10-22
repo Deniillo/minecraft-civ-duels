@@ -62,7 +62,7 @@ public final class SidebarService {
         }
         int searchingNow = searching.getAsInt();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (worlds.isLobbyWorld(p.getWorld()) && !worlds.isHubWorld(p.getWorld())) {
+            if (worlds.isLobbyWorld(p.getWorld())) {
                 update(p, inDuels, searchingNow);
             } else if (boards.remove(p.getUniqueId()) != null) {
                 p.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());

@@ -24,19 +24,16 @@ class DuelsSettingsTest {
     }
 
     private static final String VALID = """
-            join-teleport-to-hub: false
             worlds:
-              hub: {name: duels_hub, generate-if-missing: true, platform-material: SMOOTH_QUARTZ}
-              lobby: {name: duels_lobby, generate-if-missing: true, platform-material: STONE_BRICKS}
+              lobby: {name: duels_lobby, generate-if-missing: true, platform-material: SMOOTH_QUARTZ}
               arena: {name: duels_arena, generate-if-missing: false}
             """;
 
     @Test
     void readsValidConfig() {
         DuelsSettings s = DuelsSettings.from(yaml(VALID));
-        assertFalse(s.joinTeleportToHub());
-        assertEquals("duels_hub", s.hub().name());
-        assertEquals("SMOOTH_QUARTZ", s.hub().platformMaterial());
+        assertEquals("duels_lobby", s.lobby().name());
+        assertEquals("SMOOTH_QUARTZ", s.lobby().platformMaterial());
         assertTrue(s.lobby().generateIfMissing());
         assertFalse(s.arena().generateIfMissing());
         assertEquals("STONE_BRICKS", s.arena().platformMaterial(), "значение по умолчанию");
@@ -59,13 +56,13 @@ class DuelsSettingsTest {
 
     @Test
     void failsOnDuplicateNames() {
-        String text = VALID.replace("duels_arena", "duels_hub");
+        String text = VALID.replace("duels_arena", "duels_lobby");
         assertThrows(IllegalArgumentException.class, () -> DuelsSettings.from(yaml(text)));
     }
 
     @Test
     void failsOnBadWorldName() {
-        String text = VALID.replace("duels_hub", "../etc");
+        String text = VALID.replace("duels_lobby", "../etc");
         assertThrows(IllegalArgumentException.class, () -> DuelsSettings.from(yaml(text)));
     }
 
