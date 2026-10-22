@@ -2,7 +2,7 @@ name: Duels
 version: '${version}'
 main: mine.deniilo.duels.DuelsPlugin
 api-version: '26.3'
-description: Дуэли 1v1 с боевым балансом CivCraft
+description: Дуэли 1v1 с рейтингом, тренировками и своим балансом брони и оружия
 authors: [deniilo]
 
 commands:

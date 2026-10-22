@@ -42,6 +42,7 @@ bin/
 docker/data/
 maps/
 
-### Секреты ###
+### Локальные файлы ###
 .env
 backups/
+CLAUDE.md
